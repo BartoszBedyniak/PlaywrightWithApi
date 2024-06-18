@@ -1,11 +1,10 @@
 import { test, expect, request } from '@playwright/test';
 import tags from './test-data/tags.json'
-import { json } from 'stream/consumers';
 
 test.beforeEach(async ({ page }) => {
   await page.route('https://conduit-api.bondaracademy.com/api/tags',async route =>{
-      await route.fulfill({//wypelnienie dopowiedzi
-        body: JSON.stringify(tags)//ciało odpowiedzi przekształcony tags w jsin
+      await route.fulfill({
+        body: JSON.stringify(tags)
     })
 
     })
