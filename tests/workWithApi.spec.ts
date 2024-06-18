@@ -1,6 +1,6 @@
 import { test, expect, request } from '@playwright/test';
 import tags from './test-data/tags.json'
-
+import { json } from 'stream/consumers';
 
 test.beforeEach(async ({ page }) => {
   await page.route('https://conduit-api.bondaracademy.com/api/tags',async route =>{
@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
     })
  
     await page.goto('https://conduit.bondaracademy.com/');
-   
+
 })
   test("has title",async({page})=>{
     await page.route('*/**/api/articles*',async route =>{
@@ -34,21 +34,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('create article with API and delete article',async({page,request})=>{
-  const responce =await request.post('https://conduit-api.bondaracademy.com/api/users/login',{
-    data:{
-      "user": {"email": "test123@test.pl", "password": "Test.12148"}
-    }
-  })
-  const responseBody = await responce.json()
-  const accessToken = responseBody.user.token
 
   const articleResponse = await request.post("https://conduit-api.bondaracademy.com/api/articles/",{
     data:{
       "article": {"title": "Test title", "description": "Test description", "body": "Test body", "tagList": []}
     },
-    headers:{
-      Authorization:`Token ${accessToken}`
-    }
+  
   })
   expect(articleResponse.status()).toEqual(201)
   await page.getByText('Global Feed').click()
@@ -72,17 +63,8 @@ test("create article and delete with API",async({page,request})=>{
   await page.getByText('Global Feed').click()
   await expect(page.locator('app-article-list h1').first()).not.toContainText("Test 2 description")
 
-  const responce =await request.post('https://conduit-api.bondaracademy.com/api/users/login',{
-    data:{
-      "user": {"email": "test123@test.pl", "password": "Test.12148"}
-    }
-  })
-  const responseBody = await responce.json()
-  const accessToken = responseBody.user.token
   const deleteArticle = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${slugId}`,{
-    headers:{
-      Authorization:`Token ${accessToken}`
-    }
+  
   })
   expect(deleteArticle.status()).toEqual(204)
 
